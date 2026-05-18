@@ -1,1 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>OSINT HUB · Matrix Nexus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background-color: #000000;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            color: #0f0;
+            padding: 20px;
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Efecto de fondo matrix dinámico (solo oscuro) */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.02) 0px, rgba(0, 255, 0, 0.02) 2px, transparent 2px, transparent 6px);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header mejorado */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #0f0;
+            padding-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            letter-spacing: 5px;
+            text-shadow: 0 0 8px #0f0;
+            word-break: break-word;
+            font-weight: bold;
+        }
+
+        /* Efecto de cursor parpadeante (para typing) */
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            margin-left: 5px;
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Contador de herramientas */
+        .stats {
+            background: rgba(0, 30, 0, 0.7);
+            backdrop-filter: blur(4px);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        /* Toggle switch */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 30, 0, 0.6);
+            padding: 6px 14px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+        }
+        .theme-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #0a3b0a;
+            border-radius: 34px;
+            transition: 0.3s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "🌙";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #0f0;
+            border-radius: 50%;
+            transition: 0.3s;
+            font-size: 12px;
+            color: #000;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "☀️";
+            background-color: #0f0;
+        }
+
+        /* Filtros rápidos (botones) */
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 25px 0;
+        }
+        .filter-btn {
+            background: #0a0f0a;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 8px #0f0;
+        }
+        .filter-btn.active {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 12px #0f0;
+        }
+
+        .search-bar {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .search-bar input {
+            width: 80%;
+            max-width: 500px;
+            background: #111;
+            border: 1px solid #0f0;
+            padding: 12px 20px;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 1rem;
+            outline: none;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .search-bar input:focus {
+            box-shadow: 0 0 12px #0f0;
+        }
+
+        /* Categorías */
+        .category {
+            margin-bottom: 50px;
+            background: rgba(0, 20, 0, 0.4);
+            border-left: 4px solid #0f0;
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(2px);
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.4s forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .category h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-bottom: 1px dashed #0f0;
+            padding-bottom: 8px;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        /* Tarjetas con glow y hover mejorado */
+        .tool-card {
+            background: #0a0f0a;
+            border: 1px solid #0f0;
+            border-radius: 16px;
+            padding: 16px;
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 0 5px rgba(0,255,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,0,0.1), transparent);
+            transition: left 0.5s;
+        }
+        .tool-card:hover::before {
+            left: 100%;
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 18px rgba(0,255,0,0.6);
+            border-color: #0f0;
+        }
+
+        .tool-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .tool-desc {
+            font-size: 0.85rem;
+            color: #cfc;
+            margin-bottom: 12px;
+            opacity: 0.9;
+        }
+        .tool-link {
+            margin-bottom: 12px;
+        }
+        .tool-link a {
+            color: #0f0;
+            text-decoration: none;
+            border-bottom: 1px dotted #0f0;
+            word-break: break-all;
+        }
+        .tool-link a:hover {
+            color: #fff;
+            border-bottom: 1px solid #fff;
+        }
+        .status {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status.green { background: #0f0; color: #000; }
+        .status.yellow { background: #ccff00; color: #1a1a1a; }
+        .status.red { background: #f33; color: #000; }
+
+        .report-btn {
+            margin-top: 12px;
+            text-align: right;
+        }
+        .report-btn button {
+            background: none;
+            border: 1px solid #2f2f2f;
+            color: #8f8;
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: monospace;
+            transition: 0.2s;
+        }
+        .report-btn button:hover {
+            background: #0f0;
+            color: #000;
+            border-color: #0f0;
+        }
+
+        /* Modal para reportar */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #0a0f0a;
+            border: 2px solid #0f0;
+            border-radius: 20px;
+            padding: 25px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(0,255,0,0.3);
+        }
+        .modal-content h3 {
+            margin-bottom: 15px;
+        }
+        .modal-content input, .modal-content textarea {
+            width: 100%;
+            background: #111;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 8px;
+            margin: 8px 0;
+            font-family: monospace;
+            border-radius: 8px;
+        }
+        .modal-content button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            margin: 8px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .close-modal {
+            background: #333;
+            color: #0f0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            border-top: 1px solid #0f0;
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        /* Tema claro */
+        body.light-theme {
+            background-color: #eef4ee;
+            color: #004d00;
+        }
+        body.light-theme::before {
+            background: none;
+        }
+        body.light-theme .header {
+            border-bottom-color: #2b6e2b;
+        }
+        body.light-theme h1 {
+            text-shadow: 0 0 4px #2b6e2b;
+            color: #004d00;
+        }
+        body.light-theme .stats, body.light-theme .theme-switch-wrapper {
+            background: rgba(100,120,100,0.2);
+        }
+        body.light-theme .search-bar input {
+            background: #fff;
+            border-color: #2b6e2b;
+            color: #004d00;
+        }
+        body.light-theme .filter-btn {
+            background: #e0e8e0;
+            border-color: #2b6e2b;
+            color: #004d00;
+        }
+        body.light-theme .filter-btn.active, body.light-theme .filter-btn:hover {
+            background: #2b6e2b;
+            color: #fff;
+        }
+        body.light-theme .category {
+            background: rgba(200,220,200,0.3);
+            border-left-color: #2b6e2b;
+        }
+        body.light-theme .category h2 {
+            border-bottom-color: #2b6e2b;
+            color: #004d00;
+        }
+        body.light-theme .tool-card {
+            background: #ffffff;
+            border-color: #2b6e2b;
+            box-shadow: 0 2px 8px rgba(0,50,0,0.1);
+        }
+        body.light-theme .tool-card:hover {
+            background: #f0fff0;
+            box-shadow: 0 4px 16px rgba(0,100,0,0.2);
+        }
+        body.light-theme .tool-desc {
+            color: #115511;
+        }
+        body.light-theme .tool-link a {
+            color: #006600;
+        }
+        body.light-theme .report-btn button {
+            border-color: #88aa88;
+            color: #006600;
+        }
+        body.light-theme .report-btn button:hover {
+            background: #2b6e2b;
+            color: #fff;
+        }
+        body.light-theme footer {
+            border-top-color: #2b6e2b;
+        }
+        body.light-theme .status.green { background: #2b6e2b; color: #fff; }
+        body.light-theme .status.yellow { background: #b9a300; color: #fff; }
+        body.light-theme .status.red { background: #c33; color: #fff; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1 id="typing-title"></h1>
+        <div class="tagline">→ herramientas de inteligencia en fuentes abiertas — edición nexus ←</div>
+        <div style="display: flex; justify-content: center; gap: 20px; align-items: center; flex-wrap: wrap;">
+            <div class="stats" id="statsCounter">Cargando...</div>
+            <div class="theme-switch-wrapper">
+                <span class="theme-label">🌙 Oscuro</span>
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-label">☀️ Claro</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros rápidos -->
+    <div class="filter-buttons" id="filterButtons">
+        <button class="filter-btn active" data-category="all">📌 Todas</button>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔎 filtrar herramientas por nombre, descripción o categoría...">
+    </div>
+
+    <div id="categoriesContainer"></div>
+
+    <footer>
+        ⚡ OSINT HUB — recopilación ética de herramientas públicas | datos verificados periódicamente<br>
+        ¿Enlace roto? usa el botón "reportar" en cada tarjeta.
+    </footer>
+</div>
+
+<!-- Modal para reportar -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <h3>📡 Reportar enlace roto</h3>
+        <p id="modalToolInfo"></p>
+        <input type="text" id="reportName" placeholder="Tu nombre (opcional)">
+        <textarea id="reportIssue" rows="3" placeholder="Describe el problema..."></textarea>
+        <button id="sendReport">Enviar reporte (simulado)</button>
+        <button class="close-modal" id="closeModal">Cancelar</button>
+    </div>
+</div>
+
+<script>
+    // ==================== DATOS ====================
+    const toolsData = {
+        "Búsqueda de dominios / WHOIS": [
+            { name: "Whois.domaintools", desc: "Información WHOIS completa, historial de DNS.", url: "https://whois.domaintools.com", status: "green" },
+            { name: "SecurityTrails", desc: "Datos históricos de DNS, subdominios.", url: "https://securitytrails.com", status: "green" },
+            { name: "ViewDNS.info", desc: "Herramientas WHOIS, reverso IP.", url: "https://viewdns.info", status: "green" },
+            { name: "ICANN Lookup", desc: "WHOIS oficial de registros.", url: "https://lookup.icann.org", status: "green" },
+            { name: "WhoXY", desc: "API de WHOIS.", url: "https://whois.whoisxmlapi.com", status: "green" },
+            { name: "DNSlytics", desc: "Historial de dominios.", url: "https://dnslytics.com", status: "green" },
+            { name: "DNSDumpster", desc: "Mapeo de subdominios gratuito.", url: "https://dnsdumpster.com", status: "green" }
+        ],
+        "Redes sociales": [
+            { name: "Social Searcher", desc: "Búsqueda en redes sociales.", url: "https://www.social-searcher.com", status: "green" },
+            { name: "Social Analyzer", desc: "API + web para +1000 redes.", url: "https://github.com/weisk/social-analyzer", status: "green" },
+            { name: "WhatsMyName", desc: "Verifica existencia de username.", url: "https://whatsmyname.app", status: "green" },
+            { name: "Namechk", desc: "Disponibilidad de usuario.", url: "https://namechk.com", status: "green" },
+            { name: "Maigret", desc: "Buscador de usuarios CLI/web.", url: "https://maigret.secapps.com", status: "green" },
+            { name: "LinkedIn Sales Nav", desc: "Búsqueda perfiles (limitado).", url: "https://www.linkedin.com/sales/search", status: "yellow" }
+        ],
+        "Correos electrónicos y usuarios": [
+            { name: "Hunter.io", desc: "Buscador de correos por dominio.", url: "https://hunter.io", status: "green" },
+            { name: "EmailRep.io", desc: "Reputación de email.", url: "https://emailrep.io", status: "green" },
+            { name: "Have I Been Pwned", desc: "Verifica filtraciones.", url: "https://haveibeenpwned.com", status: "green" },
+            { name: "DeHashed", desc: "Base de filtraciones.", url: "https://dehashed.com", status: "green" },
+            { name: "MailTester", desc: "Valida email.", url: "https://mailtester.com", status: "green" },
+            { name: "PhoneInfoga", desc: "OSINT de teléfonos.", url: "https://sundowndev.github.io/phoneinfoga", status: "yellow" },
+            { name: "Epieos", desc: "Búsqueda inversa email/teléfono.", url: "https://epieos.com", status: "green" }
+        ],
+        "Geolocalización y mapas": [
+            { name: "Google Maps", desc: "Mapas, Street View.", url: "https://maps.google.com", status: "green" },
+            { name: "Wikimapia", desc: "Mapa colaborativo.", url: "https://wikimapia.org", status: "green" },
+            { name: "Pic2Map", desc: "Extrae coordenadas EXIF.", url: "https://pic2map.com", status: "green" },
+            { name: "SunCalc", desc: "Posición del sol.", url: "https://suncalc.org", status: "green" },
+            { name: "GeoCreepy", desc: "Geolocalización de Telegram.", url: "https://github.com/ikkz/geocreepy", status: "green" },
+            { name: "OpenStreetMap", desc: "Mapas libres.", url: "https://www.openstreetmap.org", status: "green" },
+            { name: "Google Earth", desc: "Imágenes satelitales.", url: "https://earth.google.com", status: "green" }
+        ],
+        "Archivos web (Wayback Machine)": [
+            { name: "Wayback Machine", desc: "Archivo web gigante.", url: "https://archive.org/web/", status: "green" },
+            { name: "Archive.today", desc: "Capturas instantáneas.", url: "https://archive.is", status: "green" },
+            { name: "Ghostarchive", desc: "Archiva páginas.", url: "https://ghostarchive.org", status: "green" },
+            { name: "OldWeb.today", desc: "Emulación de navegadores.", url: "https://oldweb.today", status: "green" },
+            { name: "Perma.cc", desc: "Enlaces permanentes.", url: "https://perma.cc", status: "green" },
+            { name: "Arquivo.pt", desc: "Archivo portugués.", url: "https://arquivo.pt", status: "green" }
+        ],
+        "Imágenes (metadatos + búsqueda inversa)": [
+            { name: "Google Images", desc: "Búsqueda inversa.", url: "https://images.google.com", status: "green" },
+            { name: "TinEye", desc: "Firma perceptual.", url: "https://tineye.com", status: "green" },
+            { name: "VerEXIF", desc: "Metadatos EXIF.", url: "https://www.verexif.com", status: "green" },
+            { name: "FotoForensics", desc: "Análisis forense.", url: "https://fotoforensics.com", status: "green" },
+            { name: "Yandex Images", desc: "Buscador inverso ruso.", url: "https://yandex.com/images", status: "green" },
+            { name: "ExifTool online", desc: "Demo web ExifTool.", url: "https://exif.tools", status: "green" },
+            { name: "Bing Visual Search", desc: "Búsqueda por imagen.", url: "https://www.bing.com/visualsearch", status: "green" }
+        ],
+        "Código fuente y repositorios": [
+            { name: "GitHub Search", desc: "Búsqueda en repositorios.", url: "https://github.com/search", status: "green" },
+            { name: "GitLab Explore", desc: "Repositorios públicos.", url: "https://gitlab.com/explore", status: "green" },
+            { name: "SourceGraph", desc: "Búsqueda semántica.", url: "https://sourcegraph.com/search", status: "green" },
+            { name: "PublicWWW", desc: "Busca fragmentos en webs.", url: "https://publicwww.com", status: "green" },
+            { name: "SearchCode", desc: "Motor de código.", url: "https://searchcode.com", status: "green" },
+            { name: "Bitbucket Search", desc: "Repositorios Atlassian.", url: "https://bitbucket.org/repo/all", status: "green" }
+        ],
+        "Datos públicos gubernamentales": [
+            { name: "Data.gov", desc: "Datos abiertos EE.UU.", url: "https://data.gov", status: "green" },
+            { name: "European Data Portal", desc: "Datos UE.", url: "https://data.europa.eu", status: "green" },
+            { name: "INE España", desc: "Instituto Nacional Estadística.", url: "https://www.ine.es", status: "green" },
+            { name: "World Bank Open Data", desc: "Datos económicos.", url: "https://data.worldbank.org", status: "green" },
+            { name: "Gobierno Abierto México", desc: "Datos mexicanos.", url: "https://datos.gob.mx", status: "green" },
+            { name: "UK Data Service", desc: "Datos Reino Unido.", url: "https://ukdataservice.ac.uk", status: "green" }
+        ],
+        "Foros y dark web (superficie)": [
+            { name: "Reddit r/OSINT", desc: "Comunidad OSINT.", url: "https://www.reddit.com/r/OSINT", status: "green" },
+            { name: "Hack Forums", desc: "Foro hacking.", url: "https://hackforums.net", status: "green" },
+            { name: "Dark Web Wiki", desc: "Sitios .onion (Tor).", url: "https://dark.fail", status: "yellow" },
+            { name: "Ahmia", desc: "Buscador onion.", url: "https://ahmia.fi", status: "green" },
+            { name: "Wilders Security", desc: "Foro seguridad.", url: "https://www.wilderssecurity.com", status: "green" }
+        ],
+        "Motor de Búsqueda de Infraestructura": [
+            { name: "Shodan", desc: "Motor de dispositivos conectados.", url: "https://www.shodan.io", status: "green" },
+            { name: "Censys", desc: "Descubrimiento de activos.", url: "https://censys.io", status: "green" },
+            { name: "ZoomEye", desc: "Búsqueda de dispositivos.", url: "https://www.zoomeye.org", status: "green" },
+            { name: "Criminal IP", desc: "Superficie de ataque.", url: "https://www.criminalip.io", status: "green" },
+            { name: "FullHunt", desc: "Monitorización de ataque.", url: "https://fullhunt.io", status: "green" },
+            { name: "FOFA", desc: "Motor de activos en internet.", url: "https://en.fofa.info", status: "green" }
+        ]
+    };
+
+    const categoriesOrder = [
+        "Búsqueda de dominios / WHOIS",
+        "Redes sociales",
+        "Correos electrónicos y usuarios",
+        "Geolocalización y mapas",
+        "Archivos web (Wayback Machine)",
+        "Imágenes (metadatos + búsqueda inversa)",
+        "Código fuente y repositorios",
+        "Datos públicos gubernamentales",
+        "Foros y dark web (superficie)",
+        "Motor de Búsqueda de Infraestructura"
+    ];
+
+    // Calcular total de herramientas
+    let totalTools = 0;
+    for (let cat in toolsData) totalTools += toolsData[cat].length;
+
+    // Variables de estado
+    let currentFilter = "all";
+    let searchText = "";
+
+    // Elementos DOM
+    const container = document.getElementById("categoriesContainer");
+    const statsSpan = document.getElementById("statsCounter");
+    const searchInput = document.getElementById("searchInput");
+    const filterButtonsDiv = document.getElementById("filterButtons");
+
+    // Inicializar botones de categoría
+    function initFilterButtons() {
+        filterButtonsDiv.innerHTML = '<button class="filter-btn active" data-category="all">📌 Todas</button>';
+        categoriesOrder.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.className = "filter-btn";
+            btn.setAttribute("data-category", cat);
+            btn.innerText = cat;
+            filterButtonsDiv.appendChild(btn);
+        });
+        // Eventos
+        document.querySelectorAll(".filter-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                currentFilter = btn.getAttribute("data-category");
+                renderTools();
+            });
+        });
+    }
+
+    // Renderizado con filtros
+    function renderTools() {
+        if (!container) return;
+        container.innerHTML = "";
+        let visibleCategories = categoriesOrder;
+        if (currentFilter !== "all") {
+            visibleCategories = [currentFilter];
+        }
+
+        let anyVisible = false;
+        for (let cat of visibleCategories) {
+            const tools = toolsData[cat];
+            if (!tools) continue;
+
+            // Filtro de texto
+            let filteredTools = tools;
+            if (searchText !== "") {
+                const lower = searchText.toLowerCase();
+                filteredTools = tools.filter(tool =>
+                    tool.name.toLowerCase().includes(lower) ||
+                    tool.desc.toLowerCase().includes(lower)
+                );
+            }
+            if (filteredTools.length === 0) continue;
+            anyVisible = true;
+
+            const catDiv = document.createElement("div");
+            catDiv.className = "category";
+            catDiv.style.animationDelay = "0.05s";
+            catDiv.innerHTML = `<h2>📁 ${cat} <span style="font-size:0.8rem;">(${filteredTools.length})</span></h2><div class="tools-grid"></div>`;
+            container.appendChild(catDiv);
+            const gridDiv = catDiv.querySelector(".tools-grid");
+
+            filteredTools.forEach(tool => {
+                const statusClass = tool.status === "green" ? "green" : (tool.status === "yellow" ? "yellow" : "red");
+                const statusText = tool.status === "green" ? "🟢 activo" : (tool.status === "yellow" ? "🟡 inestable" : "🔴 caído");
+                const card = document.createElement("div");
+                card.className = "tool-card";
+                card.innerHTML = `
+                    <div class="tool-name">
+                        <span>🔧 ${tool.name}</span>
+                        <span class="status ${statusClass}">${statusText}</span>
+                    </div>
+                    <div class="tool-desc">📄 ${tool.desc}</div>
+                    <div class="tool-link">🔗 <a href="${tool.url}" target="_blank" rel="noopener noreferrer">${tool.url.length > 55 ? tool.url.substring(0, 55)+"…" : tool.url}</a></div>
+                    <div class="report-btn"><button class="report-button" data-name="${tool.name}" data-cat="${cat}" data-url="${tool.url}">⚠️ reportar enlace roto</button></div>
+                `;
+                gridDiv.appendChild(card);
+            });
+        }
+
+        if (!anyVisible) {
+            container.innerHTML = `<div style="text-align:center; padding:40px;">🔍 No se encontraron herramientas con ese filtro. Intenta otra palabra.</div>`;
+        }
+
+        // Actualizar contador
+        const totalVisible = Array.from(document.querySelectorAll(".tool-card")).length;
+        statsSpan.innerText = `🔧 Herramientas: ${totalVisible} / ${totalTools}`;
+
+        // Asignar eventos a los botones de reporte (modal)
+        document.querySelectorAll(".report-button").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const name = btn.getAttribute("data-name");
+                const cat = btn.getAttribute("data-cat");
+                const url = btn.getAttribute("data-url");
+                document.getElementById("modalToolInfo").innerHTML = `<strong>${name}</strong><br>${cat}<br><small>${url}</small>`;
+                document.getElementById("reportModal").style.display = "flex";
+                // Guardar datos en el modal
+                window.reportData = { name, cat, url };
+            });
+        });
+    }
+
+    // Búsqueda en tiempo real
+    if (searchInput) {
+        searchInput.addEventListener("input", (e) => {
+            searchText = e.target.value;
+            renderTools();
+        });
+    }
+
+    // Tema oscuro/claro
+    const themeToggle = document.getElementById("themeToggle");
+    if (localStorage.getItem("osint-theme") === "light") {
+        document.body.classList.add("light-theme");
+        if (themeToggle) themeToggle.checked = true;
+    } else {
+        document.body.classList.remove("light-theme");
+        if (themeToggle) themeToggle.checked = false;
+    }
+    if (themeToggle) {
+        themeToggle.addEventListener("change", (e) => {
+            if (e.target.checked) {
+                document.body.classList.add("light-theme");
+                localStorage.setItem("osint-theme", "light");
+            } else {
+                document.body.classList.remove("light-theme");
+                localStorage.setItem("osint-theme", "dark");
+            }
+        });
+    }
+
+    // Efecto de escritura en el título
+    const titleElement = document.getElementById("typing-title");
+    const titleText = "OSINT HUB /// MATRIX NEXUS";
+    let i = 0;
+    function typeWriter() {
+        if (i < titleText.length) {
+            titleElement.innerHTML = titleText.substring(0, i+1) + '<span class="cursor">|</span>';
+            i++;
+            setTimeout(typeWriter, 70);
+        } else {
+            titleElement.innerHTML = titleText;
+        }
+    }
+    typeWriter();
+
+    // Modal lógica
+    const modal = document.getElementById("reportModal");
+    const closeModalBtn = document.getElementById("closeModal");
+    const sendBtn = document.getElementById("sendReport");
+    closeModalBtn.onclick = () => modal.style.display = "none";
+    sendBtn.onclick = () => {
+        const reporter = document.getElementById("reportName").value || "Anónimo";
+        const issue = document.getElementById("reportIssue").value;
+        if (!issue.trim()) {
+            alert("Por favor describe el problema.");
+            return;
+        }
+        // Simular envío (podría abrir mailto o enviar a un webhook)
+        alert(`Gracias ${reporter}, reporte enviado (simulado).\nHerramienta: ${window.reportData?.name}\nProblema: ${issue}`);
+        modal.style.display = "none";
+        document.getElementById("reportName").value = "";
+        document.getElementById("reportIssue").value = "";
+    };
+    window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+
+    // Inicializar
+    initFilterButtons();
+    renderTools();
+</script>
+</body>
+</html>
