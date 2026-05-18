@@ -1,4 +1,3 @@
-# OSINT-HUB
 # 🕵️‍♂️ OSINT HUB · Matrix Nexus
 
 **Directorio de herramientas OSINT** con organización profesional (HTML, CSS, JS separados).  
