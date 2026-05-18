@@ -20,7 +20,6 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* Efecto de fondo matrix dinámico (solo oscuro) */
         body::before {
             content: "";
             position: fixed;
@@ -55,7 +54,6 @@
             font-size: 2.5rem;
             letter-spacing: 3px;
             text-shadow: 0 0 8px #0f0;
-            word-break: break-word;
         }
 
         .tagline {
@@ -63,7 +61,6 @@
             opacity: 0.8;
         }
 
-        /* Barra de herramientas superior */
         .toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -75,21 +72,6 @@
             border-radius: 50px;
             backdrop-filter: blur(4px);
         }
-        .toolbar button {
-            background: #0a0f0a;
-            border: 1px solid #0f0;
-            color: #0f0;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-family: monospace;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .toolbar button:hover {
-            background: #0f0;
-            color: #000;
-            box-shadow: 0 0 8px #0f0;
-        }
         .stats {
             background: rgba(0, 30, 0, 0.7);
             padding: 6px 14px;
@@ -97,7 +79,6 @@
             font-weight: bold;
             font-size: 0.8rem;
         }
-
         .theme-selector {
             display: flex;
             gap: 8px;
@@ -134,7 +115,6 @@
             border-radius: 30px;
             cursor: pointer;
             font-size: 0.75rem;
-            transition: 0.2s;
         }
         .filter-btn:hover, .filter-btn.active {
             background: #0f0;
@@ -165,7 +145,6 @@
             border-left: 4px solid #0f0;
             padding: 15px;
             border-radius: 12px;
-            transition: all 0.3s;
         }
         .category h2 {
             font-size: 1.5rem;
@@ -184,7 +163,6 @@
             border-radius: 14px;
             padding: 14px;
             transition: 0.2s;
-            position: relative;
         }
         .tool-card:hover {
             transform: translateY(-3px);
@@ -219,8 +197,7 @@
         .tool-actions {
             margin-top: 10px;
             display: flex;
-            justify-content: space-between;
-            gap: 8px;
+            justify-content: flex-end;
         }
         .tool-actions button {
             background: none;
@@ -273,12 +250,13 @@
         body.light-theme .header { border-bottom-color: #2b6e2b; }
         body.light-theme h1 { text-shadow: 0 0 4px #2b6e2b; color: #004d00; }
         body.light-theme .toolbar, body.light-theme .theme-selector, body.light-theme .stats { background: rgba(100,120,100,0.2); }
-        body.light-theme button, body.light-theme .filter-btn, body.light-theme .toolbar button {
+        body.light-theme .filter-btn, body.light-theme .theme-btn {
             background: #e0e8e0;
             border-color: #2b6e2b;
             color: #004d00;
         }
-        body.light-theme button:hover, body.light-theme .filter-btn.active {
+        body.light-theme .filter-btn:hover, body.light-theme .filter-btn.active,
+        body.light-theme .theme-btn.active {
             background: #2b6e2b;
             color: #fff;
         }
@@ -308,12 +286,13 @@
         body.amber-theme .header { border-bottom-color: #ffb347; }
         body.amber-theme h1 { text-shadow: 0 0 8px #ffb347; color: #ffb347; }
         body.amber-theme .toolbar, body.amber-theme .theme-selector, body.amber-theme .stats { background: rgba(255, 180, 71, 0.15); }
-        body.amber-theme button, body.amber-theme .filter-btn, body.amber-theme .toolbar button {
+        body.amber-theme .filter-btn, body.amber-theme .theme-btn {
             background: #2a2418;
             border-color: #ffb347;
             color: #ffb347;
         }
-        body.amber-theme button:hover, body.amber-theme .filter-btn.active {
+        body.amber-theme .filter-btn:hover, body.amber-theme .filter-btn.active,
+        body.amber-theme .theme-btn.active {
             background: #ffb347;
             color: #1c160c;
         }
@@ -338,11 +317,9 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1 id="mainTitle">OSINT HUB // MATRIX NEXUS</h1>
-        <div class="tagline">→ herramientas OSINT actualizadas · verificación dinámica · temas personalizables ←</div>
+        <h1>OSINT HUB // MATRIX NEXUS</h1>
+        <div class="tagline">→ herramientas OSINT actualizadas · verificación manual · temas personalizables ←</div>
         <div class="toolbar">
-            <button id="exportCsvBtn">📎 Exportar CSV</button>
-            <button id="exportJsonBtn">📄 Exportar JSON</button>
             <div class="stats" id="statsCounter">🔧 herramientas: --</div>
             <div class="theme-selector">
                 <button class="theme-btn" data-theme="dark">🌙 Matrix</button>
@@ -363,41 +340,46 @@
     <div id="categoriesContainer"></div>
 
     <footer>
-        ⚡ OSINT HUB · verificación manual con fetch | exportación CSV/JSON | temas: Matrix, Claro, Ámbar<br>
-        ¿Enlace roto? Usa "🔄 Verificar" y reporta mediante issues de GitHub.
+        ⚡ OSINT HUB · verificación local | temas: Matrix, Claro, Ámbar<br>
+        Los estados se guardan en tu navegador. Sin envío de datos.
     </footer>
 </div>
 
 <script>
-    // ==================== BASE DE DATOS (completa) ====================
+    // ========== LISTA COMPLETA DE HERRAMIENTAS (más de 60) ==========
     const toolsData = {
         "Búsqueda de dominios / WHOIS": [
             { name: "Whois.domaintools", desc: "WHOIS completo e histórico.", url: "https://whois.domaintools.com", status: "green" },
             { name: "SecurityTrails", desc: "DNS histórico y subdominios.", url: "https://securitytrails.com", status: "green" },
             { name: "ViewDNS.info", desc: "Múltiples herramientas DNS.", url: "https://viewdns.info", status: "green" },
             { name: "ICANN Lookup", desc: "WHOIS oficial.", url: "https://lookup.icann.org", status: "green" },
-            { name: "DNSDumpster", desc: "Mapeo de subdominios.", url: "https://dnsdumpster.com", status: "green" },
-            { name: "DNSlytics", desc: "Historial de dominios.", url: "https://dnslytics.com", status: "green" }
+            { name: "DNSDumpster", desc: "Mapeo de subdominios gratuito.", url: "https://dnsdumpster.com", status: "green" },
+            { name: "DNSlytics", desc: "Historial de dominios y reputación.", url: "https://dnslytics.com", status: "green" },
+            { name: "WhoXY (WhoisXML)", desc: "API de WHOIS.", url: "https://whois.whoisxmlapi.com", status: "green" }
         ],
         "Redes sociales": [
-            { name: "Social Searcher", desc: "Búsqueda en redes.", url: "https://www.social-searcher.com", status: "green" },
+            { name: "Social Searcher", desc: "Búsqueda en redes sociales.", url: "https://www.social-searcher.com", status: "green" },
             { name: "Social Analyzer", desc: "API + web para +1000 redes.", url: "https://github.com/weisk/social-analyzer", status: "green" },
-            { name: "WhatsMyName", desc: "Verifica usuarios.", url: "https://whatsmyname.app", status: "green" },
+            { name: "WhatsMyName", desc: "Verifica existencia de username.", url: "https://whatsmyname.app", status: "green" },
             { name: "Namechk", desc: "Disponibilidad de usuario.", url: "https://namechk.com", status: "green" },
-            { name: "Maigret", desc: "Buscador CLI/web.", url: "https://maigret.secapps.com", status: "green" }
+            { name: "Maigret", desc: "Buscador de usuarios CLI/web.", url: "https://maigret.secapps.com", status: "green" },
+            { name: "LinkedIn Sales Nav", desc: "Búsqueda perfiles (limitado).", url: "https://www.linkedin.com/sales/search", status: "yellow" }
         ],
         "Correos electrónicos y usuarios": [
-            { name: "Hunter.io", desc: "Buscador de correos.", url: "https://hunter.io", status: "green" },
+            { name: "Hunter.io", desc: "Buscador de correos por dominio.", url: "https://hunter.io", status: "green" },
             { name: "EmailRep.io", desc: "Reputación de email.", url: "https://emailrep.io", status: "green" },
-            { name: "Have I Been Pwned", desc: "Filtraciones.", url: "https://haveibeenpwned.com", status: "green" },
+            { name: "Have I Been Pwned", desc: "Verifica filtraciones.", url: "https://haveibeenpwned.com", status: "green" },
             { name: "DeHashed", desc: "Base de filtraciones.", url: "https://dehashed.com", status: "green" },
+            { name: "MailTester", desc: "Valida si un email existe.", url: "https://mailtester.com", status: "green" },
+            { name: "PhoneInfoga", desc: "OSINT de números telefónicos.", url: "https://sundowndev.github.io/phoneinfoga", status: "yellow" },
             { name: "Epieos", desc: "Búsqueda inversa email/teléfono.", url: "https://epieos.com", status: "green" }
         ],
         "Geolocalización y mapas": [
-            { name: "Google Maps", desc: "Mapas y Street View.", url: "https://maps.google.com", status: "green" },
+            { name: "Google Maps", desc: "Mapas, Street View.", url: "https://maps.google.com", status: "green" },
             { name: "Wikimapia", desc: "Mapa colaborativo.", url: "https://wikimapia.org", status: "green" },
+            { name: "Pic2Map", desc: "Extrae coordenadas EXIF.", url: "https://pic2map.com", status: "green" },
             { name: "SunCalc", desc: "Posición del sol.", url: "https://suncalc.org", status: "green" },
-            { name: "GeoCreepy", desc: "Geolocalización Telegram.", url: "https://github.com/ikkz/geocreepy", status: "green" },
+            { name: "GeoCreepy", desc: "Geolocalización de Telegram.", url: "https://github.com/ikkz/geocreepy", status: "green" },
             { name: "OpenStreetMap", desc: "Mapas libres.", url: "https://www.openstreetmap.org", status: "green" },
             { name: "Google Earth", desc: "Imágenes satelitales.", url: "https://earth.google.com", status: "green" }
         ],
@@ -405,55 +387,63 @@
             { name: "Wayback Machine", desc: "Archivo web gigante.", url: "https://archive.org/web/", status: "green" },
             { name: "Archive.today", desc: "Capturas instantáneas.", url: "https://archive.is", status: "green" },
             { name: "Ghostarchive", desc: "Archiva páginas.", url: "https://ghostarchive.org", status: "green" },
+            { name: "OldWeb.today", desc: "Emulación de navegadores.", url: "https://oldweb.today", status: "green" },
             { name: "Perma.cc", desc: "Enlaces permanentes.", url: "https://perma.cc", status: "green" },
             { name: "Arquivo.pt", desc: "Archivo portugués.", url: "https://arquivo.pt", status: "green" }
         ],
-        "Imágenes y metadatos": [
+        "Imágenes (metadatos + búsqueda inversa)": [
             { name: "Google Images", desc: "Búsqueda inversa.", url: "https://images.google.com", status: "green" },
-            { name: "TinEye", desc: "Búsqueda perceptual.", url: "https://tineye.com", status: "green" },
-            { name: "VerEXIF", desc: "Metadatos EXIF.", url: "https://www.verexif.com", status: "green" },
+            { name: "TinEye", desc: "Búsqueda por firma.", url: "https://tineye.com", status: "green" },
+            { name: "VerEXIF", desc: "Visualiza metadatos EXIF.", url: "https://www.verexif.com", status: "green" },
             { name: "FotoForensics", desc: "Análisis forense.", url: "https://fotoforensics.com", status: "green" },
-            { name: "Yandex Images", desc: "Buscador ruso.", url: "https://yandex.com/images", status: "green" }
+            { name: "Yandex Images", desc: "Buscador inverso ruso.", url: "https://yandex.com/images", status: "green" },
+            { name: "ExifTool online", desc: "Demo web de ExifTool.", url: "https://exif.tools", status: "green" },
+            { name: "Bing Visual Search", desc: "Búsqueda por imagen.", url: "https://www.bing.com/visualsearch", status: "green" }
         ],
         "Código fuente y repositorios": [
-            { name: "GitHub Search", desc: "Búsqueda en repos.", url: "https://github.com/search", status: "green" },
-            { name: "GitLab Explore", desc: "Repos públicos.", url: "https://gitlab.com/explore", status: "green" },
+            { name: "GitHub Search", desc: "Búsqueda en repositorios.", url: "https://github.com/search", status: "green" },
+            { name: "GitLab Explore", desc: "Repositorios públicos.", url: "https://gitlab.com/explore", status: "green" },
             { name: "SourceGraph", desc: "Búsqueda semántica.", url: "https://sourcegraph.com/search", status: "green" },
-            { name: "PublicWWW", desc: "Fragmentos en webs.", url: "https://publicwww.com", status: "green" }
+            { name: "PublicWWW", desc: "Busca fragmentos en webs.", url: "https://publicwww.com", status: "green" },
+            { name: "SearchCode", desc: "Motor de código fuente.", url: "https://searchcode.com", status: "green" },
+            { name: "Bitbucket Search", desc: "Repositorios Atlassian.", url: "https://bitbucket.org/repo/all", status: "green" }
         ],
-        "Datos gubernamentales": [
-            { name: "Data.gov", desc: "Datos EE.UU.", url: "https://data.gov", status: "green" },
+        "Datos públicos gubernamentales": [
+            { name: "Data.gov", desc: "Datos abiertos EE.UU.", url: "https://data.gov", status: "green" },
             { name: "European Data Portal", desc: "Datos UE.", url: "https://data.europa.eu", status: "green" },
-            { name: "INE España", desc: "Estadísticas.", url: "https://www.ine.es", status: "green" },
-            { name: "World Bank Open Data", desc: "Datos económicos.", url: "https://data.worldbank.org", status: "green" }
+            { name: "INE España", desc: "Instituto Nacional Estadística.", url: "https://www.ine.es", status: "green" },
+            { name: "World Bank Open Data", desc: "Datos económicos.", url: "https://data.worldbank.org", status: "green" },
+            { name: "Gobierno Abierto México", desc: "Datos públicos mexicanos.", url: "https://datos.gob.mx", status: "green" },
+            { name: "UK Data Service", desc: "Datos Reino Unido.", url: "https://ukdataservice.ac.uk", status: "green" }
         ],
         "Foros y dark web (superficie)": [
-            { name: "Reddit r/OSINT", desc: "Comunidad OSINT.", url: "https://www.reddit.com/r/OSINT", status: "green" },
-            { name: "Hack Forums", desc: "Foro hacking.", url: "https://hackforums.net", status: "green" },
-            { name: "Ahmia", desc: "Buscador onion.", url: "https://ahmia.fi", status: "green" }
+            { name: "Reddit r/OSINT", desc: "Comunidad OSINT activa.", url: "https://www.reddit.com/r/OSINT", status: "green" },
+            { name: "Hack Forums", desc: "Foro histórico de hacking.", url: "https://hackforums.net", status: "green" },
+            { name: "Dark Web Wiki", desc: "Listado de sitios .onion (Tor).", url: "https://dark.fail", status: "yellow" },
+            { name: "Ahmia", desc: "Buscador de servicios onion.", url: "https://ahmia.fi", status: "green" },
+            { name: "Wilders Security", desc: "Foro de seguridad.", url: "https://www.wilderssecurity.com", status: "green" }
         ],
-        "Motores infraestructura": [
-            { name: "Shodan", desc: "Dispositivos conectados.", url: "https://www.shodan.io", status: "green" },
-            { name: "Censys", desc: "Descubrimiento activos.", url: "https://censys.io", status: "green" },
-            { name: "ZoomEye", desc: "Dispositivos red.", url: "https://www.zoomeye.org", status: "green" },
-            { name: "Criminal IP", desc: "Superficie ataque.", url: "https://www.criminalip.io", status: "green" }
+        "Motor de Búsqueda de Infraestructura": [
+            { name: "Shodan", desc: "Motor de dispositivos conectados.", url: "https://www.shodan.io", status: "green" },
+            { name: "Censys", desc: "Descubrimiento de activos.", url: "https://censys.io", status: "green" },
+            { name: "ZoomEye", desc: "Búsqueda de dispositivos.", url: "https://www.zoomeye.org", status: "green" },
+            { name: "Criminal IP", desc: "Superficie de ataque.", url: "https://www.criminalip.io", status: "green" },
+            { name: "FullHunt", desc: "Monitorización de ataque.", url: "https://fullhunt.io", status: "green" },
+            { name: "FOFA", desc: "Motor de activos en internet.", url: "https://en.fofa.info", status: "green" }
         ]
     };
 
     const categoriesOrder = Object.keys(toolsData);
     let totalTools = Object.values(toolsData).reduce((acc, arr) => acc + arr.length, 0);
 
-    // Estado
     let currentCategory = "all";
     let searchTerm = "";
 
-    // Elementos DOM
     const container = document.getElementById("categoriesContainer");
     const statsSpan = document.getElementById("statsCounter");
     const searchInput = document.getElementById("searchInput");
     const filterDiv = document.getElementById("filterButtons");
 
-    // Helper: notificaciones toast
     function showToast(msg, isError = false) {
         const toast = document.createElement("div");
         toast.className = "toast";
@@ -464,31 +454,26 @@
         setTimeout(() => toast.remove(), 3000);
     }
 
-    // Verificar URL (fetch con timeout)
     async function checkUrl(url) {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
-            const res = await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
+            await fetch(url, { method: 'HEAD', mode: 'no-cors', signal: controller.signal });
             clearTimeout(timeoutId);
-            // con no-cors no podemos saber el estado real, pero si no hay excepción asumimos reachable
             return true;
         } catch (e) {
             return false;
         }
     }
 
-    // Actualizar estado de una herramienta específica y guardar en localStorage
     async function verifyAndUpdate(cat, toolName, url, cardElement) {
         const statusSpan = cardElement.querySelector(`.status`);
-        const oldClass = statusSpan.classList[1];
         statusSpan.innerText = "🟡 verificando...";
         statusSpan.className = "status yellow";
         const isAlive = await checkUrl(url);
         if (isAlive) {
             statusSpan.innerText = "🟢 activo";
             statusSpan.className = "status green";
-            // Actualizar datos internos (persistir)
             const tool = toolsData[cat].find(t => t.name === toolName);
             if (tool) tool.status = "green";
         } else {
@@ -497,21 +482,15 @@
             const tool = toolsData[cat].find(t => t.name === toolName);
             if (tool) tool.status = "red";
         }
-        // Guardar en localStorage para mantener verificaciones
         localStorage.setItem("osint_custom_status", JSON.stringify(toolsData));
         showToast(`Verificado: ${toolName} → ${isAlive ? "activo" : "caído"}`, !isAlive);
     }
 
-    // Renderizado principal
     function render() {
         container.innerHTML = "";
-        let categoriesToShow = categoriesOrder;
-        if (currentCategory !== "all") {
-            if (categoriesOrder.includes(currentCategory)) categoriesToShow = [currentCategory];
-            else categoriesToShow = [];
-        }
-
+        let categoriesToShow = (currentCategory === "all") ? categoriesOrder : [currentCategory];
         let visibleCount = 0;
+
         for (let cat of categoriesToShow) {
             let tools = toolsData[cat];
             if (!tools) continue;
@@ -524,7 +503,7 @@
 
             const catDiv = document.createElement("div");
             catDiv.className = "category";
-            catDiv.innerHTML = `<h2>📁 ${cat}</h2><div class="tools-grid" id="grid-${cat.replace(/\s/g, '')}"></div>`;
+            catDiv.innerHTML = `<h2>📁 ${cat}</h2><div class="tools-grid"></div>`;
             container.appendChild(catDiv);
             const grid = catDiv.querySelector(".tools-grid");
 
@@ -542,54 +521,16 @@
                     <div class="tool-link">🔗 <a href="${tool.url}" target="_blank" rel="noopener noreferrer">${tool.url}</a></div>
                     <div class="tool-actions">
                         <button class="verify-btn">🔄 Verificar</button>
-                        <button class="report-btn-custom">⚠️ Reportar</button>
                     </div>
                 `;
                 grid.appendChild(card);
-
-                const verifyBtn = card.querySelector(".verify-btn");
-                verifyBtn.addEventListener("click", () => verifyAndUpdate(cat, tool.name, tool.url, card));
-
-                const reportBtn = card.querySelector(".report-btn-custom");
-                reportBtn.addEventListener("click", () => {
-                    const body = `Herramienta: ${tool.name}\nCategoría: ${cat}\nURL: ${tool.url}\nProblema: `;
-                    window.open(`https://github.com/TU-USUARIO/osint-matrix-hub/issues/new?title=[Reporte] ${tool.name}&body=${encodeURIComponent(body)}`, '_blank');
-                    showToast("Redirigiendo a GitHub para reportar...");
-                });
+                card.querySelector(".verify-btn").addEventListener("click", () => verifyAndUpdate(cat, tool.name, tool.url, card));
             });
         }
         statsSpan.innerText = `🔧 Herramientas: ${visibleCount} / ${totalTools}`;
         if (visibleCount === 0) container.innerHTML = "<div style='text-align:center; padding:40px;'>🔍 No hay coincidencias</div>";
     }
 
-    // Exportar a CSV
-    function exportCSV() {
-        let rows = [["Categoría", "Nombre", "Descripción", "URL", "Estado"]];
-        for (let cat in toolsData) {
-            toolsData[cat].forEach(t => {
-                rows.push([cat, t.name, t.desc, t.url, t.status]);
-            });
-        }
-        const csv = rows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
-        const blob = new Blob([csv], {type: "text/csv"});
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "osint_hub_export.csv";
-        link.click();
-        showToast("Exportado a CSV");
-    }
-
-    function exportJSON() {
-        const data = JSON.stringify(toolsData, null, 2);
-        const blob = new Blob([data], {type: "application/json"});
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "osint_hub_export.json";
-        link.click();
-        showToast("Exportado a JSON");
-    }
-
-    // Filtros URL (hash)
     function updateURL() {
         let params = new URLSearchParams();
         if (currentCategory !== "all") params.set("cat", currentCategory);
@@ -625,7 +566,6 @@
         render();
     }
 
-    // Inicializar filtros
     function initFilters() {
         filterDiv.innerHTML = `<button class="filter-btn active" data-category="all">📌 Todas</button>`;
         categoriesOrder.forEach(cat => {
@@ -646,7 +586,6 @@
         });
     }
 
-    // Temas
     function applyTheme(theme) {
         document.body.classList.remove("light-theme", "amber-theme");
         if (theme === "light") document.body.classList.add("light-theme");
@@ -658,7 +597,6 @@
         });
     }
 
-    // Cargar temas guardados y estados personalizados
     function loadPersisted() {
         const savedTheme = localStorage.getItem("osint_theme");
         if (savedTheme && ["dark","light","amber"].includes(savedTheme)) applyTheme(savedTheme);
@@ -681,9 +619,6 @@
         render();
     }
 
-    // Eventos
-    document.getElementById("exportCsvBtn").addEventListener("click", exportCSV);
-    document.getElementById("exportJsonBtn").addEventListener("click", exportJSON);
     searchInput.addEventListener("input", (e) => {
         searchTerm = e.target.value.toLowerCase();
         updateURL();
