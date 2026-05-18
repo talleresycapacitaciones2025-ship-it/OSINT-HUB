@@ -1,1 +1,327 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
+body {
+    background-color: #000000;
+    font-family: 'Courier New', 'Fira Code', monospace;
+    color: #0f0;
+    padding: 20px;
+    line-height: 1.5;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.02) 0px, rgba(0, 255, 0, 0.02) 2px, transparent 2px, transparent 6px);
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #0f0;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    letter-spacing: 3px;
+    text-shadow: 0 0 8px #0f0;
+}
+
+.tagline {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin: 15px 0;
+    background: rgba(0, 20, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 50px;
+    backdrop-filter: blur(4px);
+}
+
+.stats {
+    background: rgba(0, 30, 0, 0.7);
+    padding: 6px 14px;
+    border-radius: 40px;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+
+.theme-selector {
+    display: flex;
+    gap: 8px;
+    background: rgba(0, 30, 0, 0.6);
+    padding: 4px 12px;
+    border-radius: 40px;
+}
+
+.theme-btn {
+    background: none;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 4px 10px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.7rem;
+}
+
+.theme-btn.active {
+    background: #0f0;
+    color: #000;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.filter-btn {
+    background: #0a0f0a;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 4px 12px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.filter-btn:hover, .filter-btn.active {
+    background: #0f0;
+    color: #000;
+    box-shadow: 0 0 6px #0f0;
+}
+
+.search-bar {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.search-bar input {
+    width: 80%;
+    max-width: 500px;
+    background: #111;
+    border: 1px solid #0f0;
+    padding: 10px 18px;
+    color: #0f0;
+    font-family: monospace;
+    border-radius: 40px;
+    outline: none;
+}
+
+.category {
+    margin-bottom: 40px;
+    background: rgba(0, 20, 0, 0.3);
+    border-left: 4px solid #0f0;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.category h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    border-bottom: 1px dashed #0f0;
+    display: inline-block;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+}
+
+.tool-card {
+    background: #0a0f0a;
+    border: 1px solid #0f0;
+    border-radius: 14px;
+    padding: 14px;
+    transition: 0.2s;
+}
+
+.tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 14px rgba(0,255,0,0.5);
+}
+
+.tool-name {
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.tool-desc {
+    font-size: 0.8rem;
+    color: #cfc;
+    margin-bottom: 10px;
+}
+
+.tool-link a {
+    color: #0f0;
+    word-break: break-all;
+    font-size: 0.8rem;
+}
+
+.status {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.status.green { background: #0f0; color: #000; }
+.status.yellow { background: #ccff00; color: #1a1a1a; }
+.status.red { background: #f33; color: #000; }
+
+.tool-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.tool-actions button {
+    background: none;
+    border: 1px solid #2f2f2f;
+    color: #8f8;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.tool-actions button:hover {
+    background: #0f0;
+    color: #000;
+}
+
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #0a0f0a;
+    border: 1px solid #0f0;
+    color: #0f0;
+    padding: 10px 20px;
+    border-radius: 30px;
+    z-index: 10000;
+    backdrop-filter: blur(8px);
+    font-size: 0.8rem;
+    animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; visibility: hidden; }
+}
+
+footer {
+    text-align: center;
+    margin-top: 50px;
+    padding: 15px;
+    border-top: 1px solid #0f0;
+    font-size: 0.7rem;
+}
+
+/* ===== TEMA CLARO ===== */
+body.light-theme {
+    background-color: #eef4ee;
+    color: #004d00;
+}
+body.light-theme::before { background: none; }
+body.light-theme .header { border-bottom-color: #2b6e2b; }
+body.light-theme h1 { text-shadow: 0 0 4px #2b6e2b; color: #004d00; }
+body.light-theme .toolbar, body.light-theme .theme-selector, body.light-theme .stats { background: rgba(100,120,100,0.2); }
+body.light-theme .filter-btn, body.light-theme .theme-btn {
+    background: #e0e8e0;
+    border-color: #2b6e2b;
+    color: #004d00;
+}
+body.light-theme .filter-btn:hover, body.light-theme .filter-btn.active,
+body.light-theme .theme-btn.active {
+    background: #2b6e2b;
+    color: #fff;
+}
+body.light-theme .search-bar input {
+    background: #fff;
+    border-color: #2b6e2b;
+    color: #004d00;
+}
+body.light-theme .category { background: rgba(200,220,200,0.3); border-left-color: #2b6e2b; }
+body.light-theme .category h2 { border-bottom-color: #2b6e2b; color: #004d00; }
+body.light-theme .tool-card { background: #fff; border-color: #2b6e2b; }
+body.light-theme .tool-desc { color: #115511; }
+body.light-theme .tool-link a { color: #006600; }
+body.light-theme .tool-actions button { border-color: #88aa88; color: #006600; }
+body.light-theme .tool-actions button:hover { background: #2b6e2b; color: #fff; }
+body.light-theme .status.green { background: #2b6e2b; color: #fff; }
+body.light-theme .status.yellow { background: #b9a300; color: #fff; }
+body.light-theme .status.red { background: #c33; color: #fff; }
+body.light-theme footer { border-top-color: #2b6e2b; }
+
+/* ===== TEMA ÁMBAR ===== */
+body.amber-theme {
+    background-color: #1c160c;
+    color: #ffb347;
+}
+body.amber-theme::before { background: repeating-linear-gradient(0deg, rgba(255, 180, 71, 0.03) 0px, rgba(255, 180, 71, 0.03) 2px, transparent 2px, transparent 6px); }
+body.amber-theme .header { border-bottom-color: #ffb347; }
+body.amber-theme h1 { text-shadow: 0 0 8px #ffb347; color: #ffb347; }
+body.amber-theme .toolbar, body.amber-theme .theme-selector, body.amber-theme .stats { background: rgba(255, 180, 71, 0.15); }
+body.amber-theme .filter-btn, body.amber-theme .theme-btn {
+    background: #2a2418;
+    border-color: #ffb347;
+    color: #ffb347;
+}
+body.amber-theme .filter-btn:hover, body.amber-theme .filter-btn.active,
+body.amber-theme .theme-btn.active {
+    background: #ffb347;
+    color: #1c160c;
+}
+body.amber-theme .search-bar input {
+    background: #2a2418;
+    border-color: #ffb347;
+    color: #ffb347;
+}
+body.amber-theme .category { background: rgba(255, 180, 71, 0.08); border-left-color: #ffb347; }
+body.amber-theme .category h2 { border-bottom-color: #ffb347; color: #ffb347; }
+body.amber-theme .tool-card { background: #2a2418; border-color: #ffb347; }
+body.amber-theme .tool-desc { color: #ffcc88; }
+body.amber-theme .tool-link a { color: #ffb347; }
+body.amber-theme .tool-actions button { border-color: #ffb347; color: #ffb347; }
+body.amber-theme .tool-actions button:hover { background: #ffb347; color: #1c160c; }
+body.amber-theme .status.green { background: #ffb347; color: #1c160c; }
+body.amber-theme .status.yellow { background: #ffaa33; color: #1c160c; }
+body.amber-theme .status.red { background: #ff6644; color: #1c160c; }
+body.amber-theme footer { border-top-color: #ffb347; }
